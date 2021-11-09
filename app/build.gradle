@@ -6,7 +6,7 @@ android {
     compileSdk 31
 
     defaultConfig {
-        applicationId "org.ppPlaylist.androidClient"
+        applicationId "org.partyPartyPlaylist.p3AndroidClient"
         minSdk 22
         targetSdk 31
         versionCode 1
