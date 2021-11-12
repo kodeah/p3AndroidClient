@@ -33,11 +33,12 @@ public class YoutubeActivity extends FragmentActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_select_youtube_link);
-
         context = this;
 
-        webView = findViewById(R.id.webview);
-        webView.setWebViewClient(new WebViewClient() {
+        class MyWebViewClient extends WebViewClient {
+            public MyWebViewClient() {
+                super();
+            }
 
             @Override
             public void onLoadResource(WebView view, String url) {
@@ -53,15 +54,15 @@ public class YoutubeActivity extends FragmentActivity {
                         args.putString("videoUrl", url);
                         f.setArguments(args);
                         f.show(getSupportFragmentManager(), "EnqueueAudioDialogFragment");
-                    } else if( url.contains("/playlist?list=") ) {
+                    } else if (url.contains("/playlist?list=")) {
                         Log.i(TAG, "Found playlist: " + url);
                         webView.stopLoading();
                         DialogFragment f = new PlaylistNotSupportedInfoFragment();
                         f.show(getSupportFragmentManager(), "PlaylistNotSupportedInfoFragment");
                         webView.loadUrl(lastReturnUrl);
-                    } else if( url.contains("/results") && url.contains("search_query")) {
+                    } else if (url.contains("/results") && url.contains("search_query")) {
                         final int indexSearchQueryParam = url.indexOf("search_query");
-                        if(url.substring(indexSearchQueryParam).contains("&")) {
+                        if (url.substring(indexSearchQueryParam).contains("&")) {
                             // Cut additional url parameters:
                             lastReturnUrl = url.substring(0, url.substring(indexSearchQueryParam).indexOf("&") + indexSearchQueryParam);
                         } else {
@@ -70,6 +71,7 @@ public class YoutubeActivity extends FragmentActivity {
                         Log.i(TAG, "Return url captured: " + lastReturnUrl);
                     }
                 }
+                view.evaluateJavascript(getDomCleanString(), null);
             }
 
             @Override
@@ -77,7 +79,57 @@ public class YoutubeActivity extends FragmentActivity {
                 return true;
             }
 
-        });
+            @Override
+            public void onPageFinished(WebView view, String url) {
+                cleanDomRepeatedly(view);
+            }
+
+            private String getDomCleanString() {
+                StringBuilder sb = new StringBuilder();
+                // Context menus (three dots):
+                sb.append("  var iconButtons = Array.from( document.getElementsByClassName('icon-button') );");
+                sb.append("  iconButtons = iconButtons.filter( element => !element.classList.contains('topbar-menu-button-avatar-button') );");
+                sb.append("  while(iconButtons[0]) {");
+                sb.append("    iconButtons[0].parentNode.removeChild(iconButtons[0]);");
+                sb.append("  }");
+                // Special cards on some search results (e.g. search for an exact band name):
+                sb.append("  var watchCards = Array.from( document.getElementsByTagName('ytm-universal-watch-card-renderer') );");
+                sb.append("  while(watchCards[0]) {");
+                sb.append("    watchCards[0].parentNode.removeChild(watchCards[0]);");
+                sb.append("  }");
+                sb.append("  var horizontalCards = Array.from( document.getElementsByTagName('ytm-horizontal-card-list-renderer') );");
+                sb.append("  while(horizontalCards[0]) {");
+                sb.append("    horizontalCards[0].parentNode.removeChild(horizontalCards[0]);");
+                sb.append("  }");
+                // Bottom bar:
+                sb.append("  var bottomBars = Array.from( document.getElementsByTagName('ytm-pivot-bar-renderer') );");
+                sb.append("  while(bottomBars[0]) {");
+                sb.append("    bottomBars[0].parentNode.removeChild(bottomBars[0]);");
+                sb.append("  }");
+                return sb.toString();
+            }
+
+            // Credits:
+            // https://stackoverflow.com/questions/2219074/in-android-webview-am-i-able-to-modify-a-webpages-dom
+            private void cleanDomRepeatedly(WebView view) {
+                // Remove context menus of videos for convenience:
+                StringBuilder sb = new StringBuilder();
+                sb.append("setInterval(() => {");
+                sb.append( getDomCleanString() );
+                sb.append("}, 100);");
+                view.evaluateJavascript(sb.toString(), null);
+            }
+            private void removeCardsFromDom(WebView view) {
+                // Remove context menus of videos for convenience:
+                StringBuilder sb = new StringBuilder();
+
+                view.evaluateJavascript(sb.toString(), null);
+            }
+        }
+
+        webView = findViewById(R.id.webview);
+        webView.getSettings().setJavaScriptEnabled(true);
+        webView.setWebViewClient(new MyWebViewClient());
         WebSettings webSettings = webView.getSettings();
         webSettings.setJavaScriptEnabled(true);
         webSettings.setMediaPlaybackRequiresUserGesture(true);
