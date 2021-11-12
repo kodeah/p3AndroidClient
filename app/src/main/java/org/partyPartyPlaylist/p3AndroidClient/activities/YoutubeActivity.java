@@ -26,6 +26,9 @@ public class YoutubeActivity extends FragmentActivity {
 
     static Context context;
 
+    private static final String INITIAL_SEARCH_QUERY_URL = "https://m.youtube.com";
+    private String lastReturnUrl = INITIAL_SEARCH_QUERY_URL;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -33,21 +36,39 @@ public class YoutubeActivity extends FragmentActivity {
 
         context = this;
 
-        webView = (WebView) findViewById(R.id.webview);
+        webView = findViewById(R.id.webview);
         webView.setWebViewClient(new WebViewClient() {
 
             @Override
             public void onLoadResource(WebView view, String url) {
                 Log.i(TAG, "onLoadResource:" + url);
-                if (url.contains("youtu") && url.contains("/watch?v=")) {
-                    webView.stopLoading();
-                    webView.goBack();
-                    Log.i(TAG, "Found video: " + url);
-                    DialogFragment f = new EnqueueAudioDialogFragment();
-                    Bundle args = new Bundle();
-                    args.putString("videoUrl", url);
-                    f.setArguments(args);
-                    f.show(getSupportFragmentManager(), "EnqueueAudioDialogFragment");
+                if (url.contains("youtu")) {
+                    if (url.contains("/watch?v=")) {
+                        Log.i(TAG, "Found video: " + url);
+                        webView.stopLoading();
+                        Log.i(TAG, "Loading return url: " + lastReturnUrl);
+                        webView.loadUrl(lastReturnUrl);
+                        DialogFragment f = new EnqueueAudioDialogFragment();
+                        Bundle args = new Bundle();
+                        args.putString("videoUrl", url);
+                        f.setArguments(args);
+                        f.show(getSupportFragmentManager(), "EnqueueAudioDialogFragment");
+                    } else if( url.contains("/playlist?list=") ) {
+                        Log.i(TAG, "Found playlist: " + url);
+                        webView.stopLoading();
+                        DialogFragment f = new PlaylistNotSupportedInfoFragment();
+                        f.show(getSupportFragmentManager(), "PlaylistNotSupportedInfoFragment");
+                        webView.loadUrl(lastReturnUrl);
+                    } else if( url.contains("/results") && url.contains("search_query")) {
+                        final int indexSearchQueryParam = url.indexOf("search_query");
+                        if(url.substring(indexSearchQueryParam).contains("&")) {
+                            // Cut additional url parameters:
+                            lastReturnUrl = url.substring(0, url.substring(indexSearchQueryParam).indexOf("&") + indexSearchQueryParam);
+                        } else {
+                            lastReturnUrl = url;
+                        }
+                        Log.i(TAG, "Return url captured: " + lastReturnUrl);
+                    }
                 }
             }
 
@@ -60,7 +81,7 @@ public class YoutubeActivity extends FragmentActivity {
         WebSettings webSettings = webView.getSettings();
         webSettings.setJavaScriptEnabled(true);
         webSettings.setMediaPlaybackRequiresUserGesture(true);
-        webView.loadUrl("https://m.youtube.com");
+        webView.loadUrl(INITIAL_SEARCH_QUERY_URL);
     }
 
     public static class EnqueueAudioDialogFragment extends DialogFragment {
@@ -80,6 +101,16 @@ public class YoutubeActivity extends FragmentActivity {
                         resource.post(videoUrl);
                     }).start())
                     .setNegativeButton("No", (dialog, id) -> {});
+            return builder.create();
+        }
+    }
+
+    public static class PlaylistNotSupportedInfoFragment extends DialogFragment {
+        @Override
+        public Dialog onCreateDialog(Bundle savedInstanceState) {
+            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+            builder.setMessage("Playlists are currently not supported. Please try again with a single video item.")
+                    .setNeutralButton("Ok", (dialog, id)->{});
             return builder.create();
         }
     }
