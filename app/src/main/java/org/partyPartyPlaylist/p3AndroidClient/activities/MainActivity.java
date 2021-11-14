@@ -4,7 +4,6 @@ package org.partyPartyPlaylist.p3AndroidClient.activities;
 // https://developer.android.com/guide/topics/ui/controls/button
 
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
@@ -54,25 +53,25 @@ public class MainActivity extends AppCompatActivity {
         // Credits:
         // https://stackoverflow.com/questions/2719425/set-attributes-margin-gravity-etc-to-an-android-view-programmatically-wi/4594374#4594374
 
-        Button buttonAddYoutube = (Button) findViewById(R.id.button_add_youtube);
+        Button buttonAddYoutube = findViewById(R.id.button_add_youtube);
         buttonAddYoutube.setOnClickListener(view -> {
             Intent intent = new Intent(thisActivity, YoutubeActivity.class);
             startActivity(intent);
         });
 
-        FloatingActionButton fabGetPlaylist = (FloatingActionButton) findViewById(R.id.fabGetPlaylist);
+        FloatingActionButton fabGetPlaylist = findViewById(R.id.fabGetPlaylist);
         fabGetPlaylist.setOnClickListener(view -> updatePlaylist());
 
-        FloatingActionButton fabPullup = (FloatingActionButton) findViewById(R.id.fabPullup);
+        FloatingActionButton fabPullup = findViewById(R.id.fabPullup);
         fabPullup.setOnClickListener(view -> post_pullup());
 
-        FloatingActionButton fabAutoplay = (FloatingActionButton) findViewById(R.id.fabAutoplay);
+        FloatingActionButton fabAutoplay = findViewById(R.id.fabAutoplay);
         fabAutoplay.setOnClickListener(view -> post_toggleAutoplay());
 
-        FloatingActionButton fabSkip = (FloatingActionButton) findViewById(R.id.fabSkip);
+        FloatingActionButton fabSkip = findViewById(R.id.fabSkip);
         fabSkip.setOnClickListener(view -> post_skip());
 
-        FloatingActionButton fabSettings = (FloatingActionButton) findViewById(R.id.fabSettings);
+        FloatingActionButton fabSettings = findViewById(R.id.fabSettings);
         fabSettings.setOnClickListener(view -> {
             Intent intent = new Intent(thisActivity, SettingsActivity.class);
             startActivity(intent);
@@ -91,18 +90,18 @@ public class MainActivity extends AppCompatActivity {
     public void
     updatePlaylist()
     {
-        final Context context = this;
+        final MainActivity thisMainActivity = this;
         // Use a new thread to avoid network calls on the UI thread:
         new Thread(() -> {
             try {
                 final String playlistString =
-                        new ClientResource(SettingsReader.getServerAddress(context) + "/info/playlist")
+                        new ClientResource(SettingsReader.getServerAddress(thisMainActivity) + "/info/playlist")
                                 .get().getText();
 
                 // Credits:
                 // https://stackoverflow.com/questions/11123621/running-code-in-main-thread-from-another-thread
-                Handler mainHandler = new Handler(context.getMainLooper());
-                Runnable myRunnable = () -> ((MainActivity)context).displayPlaylistFromString(playlistString);
+                Handler mainHandler = new Handler(thisMainActivity.getMainLooper());
+                Runnable myRunnable = () -> thisMainActivity.displayPlaylistFromString(playlistString);
                 mainHandler.post(myRunnable);
 
             } catch (IOException e) {
@@ -113,13 +112,13 @@ public class MainActivity extends AppCompatActivity {
 
     public void
     drawStateAutoplay() {
-        FloatingActionButton fabAutoplay = (FloatingActionButton) findViewById(R.id.fabAutoplay);
+        FloatingActionButton fabAutoplay = findViewById(R.id.fabAutoplay);
         fabAutoplay.setImageResource(android.R.drawable.ic_media_pause);
     }
 
     public void
     drawStateStopped() {
-        FloatingActionButton fabAutoplay = (FloatingActionButton) findViewById(R.id.fabAutoplay);
+        FloatingActionButton fabAutoplay = findViewById(R.id.fabAutoplay);
         fabAutoplay.setImageResource(android.R.drawable.ic_media_play);
     }
 
@@ -156,7 +155,7 @@ public class MainActivity extends AppCompatActivity {
     displayPlaylistFromString (
             String playlistString
     ) {
-        LinkedList<String> stringList = new LinkedList<String>();
+        LinkedList<String> stringList = new LinkedList<>();
         if (playlistString == null) {
             stringList.add("The playlist is currently empty.");
         } else {
@@ -171,8 +170,8 @@ public class MainActivity extends AppCompatActivity {
                 stringList.add("There is a problem displaying the received playlist.");
             }
         }
-        ListView listView = (ListView) findViewById(R.id.playlistView);
-        listView.setAdapter(new ArrayAdapter<String>(this, R.layout.playlist_text_view, stringList));
+        ListView listView = findViewById(R.id.playlistView);
+        listView.setAdapter(new ArrayAdapter<>(this, R.layout.playlist_text_view, stringList));
     }
 
 }
