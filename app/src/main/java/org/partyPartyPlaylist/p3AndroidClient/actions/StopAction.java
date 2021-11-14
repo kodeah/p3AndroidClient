@@ -13,7 +13,7 @@ public class StopAction {
         new Thread(() -> {
             ClientResource postResource = new ClientResource(
                     SettingsReader.getServerAddress(context) +
-                            "/commands/autoplayStop"
+                            "/commands/autoplayOff"
             );
             postResource.post("");
         }).start();

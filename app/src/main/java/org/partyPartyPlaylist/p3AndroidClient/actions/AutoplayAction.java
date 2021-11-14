@@ -12,10 +12,9 @@ public class AutoplayAction {
 
         //Use a new thread to avoid network calls on the UI thread
         new Thread(() -> {
-            //Log.i("nobody", "serveraddr string" + SettingsReader.getServerAddress(context));
             ClientResource postResource = new ClientResource(
                     SettingsReader.getServerAddress(context) +
-                            "/commands/autoplayStart"
+                            "/commands/autoplayOn"
             );
             postResource.post("");
         }).start();
