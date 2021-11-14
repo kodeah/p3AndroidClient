@@ -3,32 +3,25 @@ package org.partyPartyPlaylist.p3AndroidClient.activities;
 // Credits:
 // https://developer.android.com/guide/topics/ui/controls/button
 
-import android.app.Activity;
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Handler;
-import android.util.Log;
-import android.view.View;
-import android.widget.ArrayAdapter;
-import android.widget.Button;
-import android.widget.ListView;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
+import android.webkit.WebSettings;
+import android.webkit.WebView;
 
 import androidx.appcompat.app.AppCompatActivity;
-
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import androidx.appcompat.view.menu.ActionMenuItemView;
+import androidx.appcompat.widget.Toolbar;
+import androidx.core.content.ContextCompat;
 
 import org.partyPartyPlaylist.p3AndroidClient.R;
 import org.partyPartyPlaylist.p3AndroidClient.actions.AutoplayAction;
 import org.partyPartyPlaylist.p3AndroidClient.actions.PullupAction;
 import org.partyPartyPlaylist.p3AndroidClient.actions.SkipAction;
 import org.partyPartyPlaylist.p3AndroidClient.actions.StopAction;
-import org.partyPartyPlaylist.p3AndroidClient.settings.SettingsReader;
-import org.restlet.resource.ClientResource;
-
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.StringReader;
-import java.util.LinkedList;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -44,49 +37,95 @@ public class MainActivity extends AppCompatActivity {
             Bundle savedInstanceState
     ) {
         super.onCreate(savedInstanceState);
-        final Activity thisActivity = this;
-
         setContentView(R.layout.activity_main_activity);
-        //Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        //setSupportActionBar(toolbar);
 
-        // Credits:
-        // https://stackoverflow.com/questions/2719425/set-attributes-margin-gravity-etc-to-an-android-view-programmatically-wi/4594374#4594374
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
 
-        Button buttonAddYoutube = findViewById(R.id.button_add_youtube);
-        buttonAddYoutube.setOnClickListener(view -> {
-            Intent intent = new Intent(thisActivity, YoutubeActivity.class);
-            startActivity(intent);
-        });
+        showYoutubeView();
+    }
 
-        FloatingActionButton fabGetPlaylist = findViewById(R.id.fabGetPlaylist);
-        fabGetPlaylist.setOnClickListener(view -> updatePlaylist());
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.main_menu, menu);
+        return true;
+    }
 
-        FloatingActionButton fabPullup = findViewById(R.id.fabPullup);
-        fabPullup.setOnClickListener(view -> post_pullup());
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle item selection
+        switch (item.getItemId()) {
+            case R.id.action_pullup:
+                pullup();
+                return true;
+            case R.id.action_autoplay:
+                toggleAutoplay();
+                return true;
+            case R.id.action_skip:
+                skip();
+                return true;
+            case R.id.action_settings:
+                final Intent intent = new Intent(this, SettingsActivity.class);
+                startActivity(intent);
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
 
-        FloatingActionButton fabAutoplay = findViewById(R.id.fabAutoplay);
-        fabAutoplay.setOnClickListener(view -> post_toggleAutoplay());
+    private static final String INITIAL_SEARCH_QUERY_URL = "https://m.youtube.com";
+    private void showYoutubeView() {
+        final WebView webView = findViewById(R.id.webview);
+        webView.getSettings().setJavaScriptEnabled( true );
+        webView.setWebViewClient( new YoutubeWebViewClient(INITIAL_SEARCH_QUERY_URL, this) );
+        WebSettings webSettings = webView.getSettings();
+        webSettings.setJavaScriptEnabled( true );
+        webSettings.setMediaPlaybackRequiresUserGesture( true );
+        webView.loadUrl( INITIAL_SEARCH_QUERY_URL );
+    }
 
-        FloatingActionButton fabSkip = findViewById(R.id.fabSkip);
-        fabSkip.setOnClickListener(view -> post_skip());
+    public void
+    pullup()
+    {
+        new PullupAction(this);
+    }
 
-        FloatingActionButton fabSettings = findViewById(R.id.fabSettings);
-        fabSettings.setOnClickListener(view -> {
-            Intent intent = new Intent(thisActivity, SettingsActivity.class);
-            startActivity(intent);
-        });
+    @SuppressLint("RestrictedApi")
+    public void
+    drawStateAutoplay() {
+        ActionMenuItemView menuItemAutoplay = findViewById(R.id.action_autoplay);
+        menuItemAutoplay.setIcon( ContextCompat.getDrawable( this, android.R.drawable.ic_media_pause) );
+    }
 
+    @SuppressLint("RestrictedApi")
+    public void
+    drawStateStopped() {
+        ActionMenuItemView menuItemAutoplay = findViewById(R.id.action_autoplay);
+        menuItemAutoplay.setIcon( ContextCompat.getDrawable( this, android.R.drawable.ic_media_play) );
+    }
+
+    public void
+    toggleAutoplay()
+    {
+        assumesAutoplay = !assumesAutoplay;
+        if (assumesAutoplay) {
+            drawStateAutoplay();
+            new AutoplayAction(this);
+        } else {
+            drawStateStopped();
+            new StopAction(this);
+        }
+    }
+
+    public void
+    skip()
+    {
+        new SkipAction(this);
     }
 
 
-    // TODO REMOVE
-    /** Called when the user touches the button */
-    public void sendMessage(View view) {
-        Log.i(TAG, "Button clicked.");
-    }
-
-
+/*
     public void
     updatePlaylist()
     {
@@ -111,47 +150,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void
-    drawStateAutoplay() {
-        FloatingActionButton fabAutoplay = findViewById(R.id.fabAutoplay);
-        fabAutoplay.setImageResource(android.R.drawable.ic_media_pause);
-    }
-
-    public void
-    drawStateStopped() {
-        FloatingActionButton fabAutoplay = findViewById(R.id.fabAutoplay);
-        fabAutoplay.setImageResource(android.R.drawable.ic_media_play);
-    }
-
-    public void
-    post_pullup ()
-    {
-        //assumesAutoplay = true;
-        //drawStateAutoplay();
-        new PullupAction(this);
-    }
-
-    public void
-    post_toggleAutoplay ()
-    {
-        assumesAutoplay = !assumesAutoplay;
-        if (assumesAutoplay) {
-            drawStateAutoplay();
-            new AutoplayAction(this);
-        } else {
-            drawStateStopped();
-            new StopAction(this);
-        }
-    }
-
-    public void
-    post_skip ()
-    {
-        new SkipAction(this);
-    }
-
-
-
-    public void
     displayPlaylistFromString (
             String playlistString
     ) {
@@ -172,6 +170,6 @@ public class MainActivity extends AppCompatActivity {
         }
         ListView listView = findViewById(R.id.playlistView);
         listView.setAdapter(new ArrayAdapter<>(this, R.layout.playlist_text_view, stringList));
-    }
+    }*/
 
 }

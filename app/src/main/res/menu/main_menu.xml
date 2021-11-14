@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/action_pullup"
+        android:icon="@android:drawable/ic_media_rew"
+        app:showAsAction="always"
+        android:title="Add">
+    </item>
+    <item
+        android:id="@+id/action_autoplay"
+        android:icon="@android:drawable/ic_media_play"
+        app:showAsAction="always"
+        android:title="Add">
+    </item>
+    <item
+        android:id="@+id/action_skip"
+        android:icon="@android:drawable/ic_media_next"
+        app:showAsAction="always"
+        android:title="Add">
+    </item>
+    <item
+        android:id="@+id/action_settings"
+        android:icon="@android:drawable/ic_menu_preferences"
+        app:showAsAction="always"
+        android:title="Settings">
+    </item>
+</menu>
