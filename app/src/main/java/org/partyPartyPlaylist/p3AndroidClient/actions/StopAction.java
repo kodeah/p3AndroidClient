@@ -8,16 +8,11 @@ import org.restlet.resource.ClientResource;
 public class StopAction {
 
     public StopAction(final Context context) {
-
-        //Use a new thread to avoid network calls on the UI thread
-        new Thread(() -> {
-            ClientResource postResource = new ClientResource(
-                    SettingsReader.getServerAddress(context) +
-                            "/commands/autoplayOff"
-            );
-            postResource.post("");
-        }).start();
-
+        ClientResource postResource = new ClientResource(
+                SettingsReader.getServerAddress(context) +
+                        "/commands/autoplayOff"
+        );
+        postResource.post("");
     }
 
 }

@@ -4,6 +4,7 @@ package org.partyPartyPlaylist.p3AndroidClient.activities;
 // https://developer.android.com/guide/topics/ui/controls/button
 
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
@@ -16,19 +17,21 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.view.menu.ActionMenuItemView;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
+import androidx.fragment.app.DialogFragment;
 
 import org.partyPartyPlaylist.p3AndroidClient.R;
 import org.partyPartyPlaylist.p3AndroidClient.actions.AutoplayAction;
 import org.partyPartyPlaylist.p3AndroidClient.actions.PullupAction;
 import org.partyPartyPlaylist.p3AndroidClient.actions.SkipAction;
 import org.partyPartyPlaylist.p3AndroidClient.actions.StopAction;
+import org.partyPartyPlaylist.p3AndroidClient.fragments.ExceptionFragment;
 
 
 public class MainActivity extends AppCompatActivity {
 
-    private static final String TAG = "PlaylistClient";
-
     private boolean assumesAutoplay = false;
+
+    private final Context thisContext = this;
 
 
     @Override
@@ -38,6 +41,11 @@ public class MainActivity extends AppCompatActivity {
     ) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main_activity);
+
+        Thread.setDefaultUncaughtExceptionHandler((t, e) -> {
+            DialogFragment f = new ExceptionFragment( e );
+            f.show( getSupportFragmentManager(), "ExceptionFragment" );
+        });
 
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -57,13 +65,13 @@ public class MainActivity extends AppCompatActivity {
         // Handle item selection
         switch (item.getItemId()) {
             case R.id.action_pullup:
-                pullup();
+                new Thread( () -> new PullupAction( thisContext ) ).start();
                 return true;
             case R.id.action_autoplay:
                 toggleAutoplay();
                 return true;
             case R.id.action_skip:
-                skip();
+                new Thread( () -> new SkipAction( thisContext ) ).start();
                 return true;
             case R.id.action_settings:
                 final Intent intent = new Intent(this, SettingsActivity.class);
@@ -83,12 +91,6 @@ public class MainActivity extends AppCompatActivity {
         webSettings.setJavaScriptEnabled( true );
         webSettings.setMediaPlaybackRequiresUserGesture( true );
         webView.loadUrl( INITIAL_SEARCH_QUERY_URL );
-    }
-
-    public void
-    pullup()
-    {
-        new PullupAction(this);
     }
 
     @SuppressLint("RestrictedApi")
@@ -111,19 +113,12 @@ public class MainActivity extends AppCompatActivity {
         assumesAutoplay = !assumesAutoplay;
         if (assumesAutoplay) {
             drawStateAutoplay();
-            new AutoplayAction(this);
+            new Thread( () -> new AutoplayAction(thisContext) ).start();
         } else {
             drawStateStopped();
-            new StopAction(this);
+            new Thread( () -> new StopAction(thisContext) ).start();
         }
     }
-
-    public void
-    skip()
-    {
-        new SkipAction(this);
-    }
-
 
 /*
     public void

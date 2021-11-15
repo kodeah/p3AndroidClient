@@ -7,8 +7,7 @@ import android.os.Bundle;
 
 import androidx.fragment.app.DialogFragment;
 
-import org.partyPartyPlaylist.p3AndroidClient.settings.SettingsReader;
-import org.restlet.resource.ClientResource;
+import org.partyPartyPlaylist.p3AndroidClient.actions.EnqueueAction;
 
 public class EnqueueAudioDialogFragment extends DialogFragment {
     //Credits:
@@ -16,7 +15,9 @@ public class EnqueueAudioDialogFragment extends DialogFragment {
 
     private final Context context;
 
-    public EnqueueAudioDialogFragment( final Context context ) {
+    public EnqueueAudioDialogFragment(
+            final Context context )
+    {
         this.context = context;
     }
 
@@ -24,15 +25,15 @@ public class EnqueueAudioDialogFragment extends DialogFragment {
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setMessage("Enqueue selected audio to playlist?")
-                .setPositiveButton("Yes", (dialog, id) -> new Thread(() -> {
-                    final String videoUrl = (String) getArguments().get("videoUrl");
-                    //Log.i(TAG, "Sending download and enqueue command with videoUrl: " + videoUrl);
-                    ClientResource resource = new ClientResource(
-                            SettingsReader.getServerAddress( context ) +
-                                    "/commands/downloadAndEnqueue" );
-                    resource.post(videoUrl);
-                }).start())
-                .setNegativeButton("No", (dialog, id) -> {});
+                .setPositiveButton(
+                        "Yes",
+                        (dialog, id) ->
+                                new Thread( () ->
+                                        new EnqueueAction(context, (String)getArguments().get("videoUrl"))
+                                ).start() )
+                .setNegativeButton(
+                        "No",
+                        (dialog, id) -> {} );
         return builder.create();
     }
 

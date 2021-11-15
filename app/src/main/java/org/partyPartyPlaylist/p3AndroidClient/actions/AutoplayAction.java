@@ -9,16 +9,11 @@ import org.restlet.resource.ClientResource;
 public class AutoplayAction {
 
     public AutoplayAction(final Context context) {
-
-        //Use a new thread to avoid network calls on the UI thread
-        new Thread(() -> {
-            ClientResource postResource = new ClientResource(
-                    SettingsReader.getServerAddress(context) +
-                            "/commands/autoplayOn"
-            );
-            postResource.post("");
-        }).start();
-
+        ClientResource postResource = new ClientResource(
+                SettingsReader.getServerAddress(context) +
+                        "/commands/autoplayOn"
+        );
+        postResource.post("");
     }
 
 }

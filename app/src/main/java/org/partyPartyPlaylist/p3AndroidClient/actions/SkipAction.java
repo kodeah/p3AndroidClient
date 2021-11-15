@@ -8,16 +8,11 @@ import org.restlet.resource.ClientResource;
 public class SkipAction {
 
     public SkipAction(final Context context) {
-
-        //Use a new thread to avoid network calls on the UI thread
-        new Thread(() -> {
-            ClientResource postResource = new ClientResource(
-                    SettingsReader.getServerAddress(context) +
-                            "/commands/skip"
-            );
-            postResource.post("");
-        }).start();
-
+        ClientResource postResource = new ClientResource(
+                SettingsReader.getServerAddress(context) +
+                        "/commands/skip"
+        );
+        postResource.post("");
     }
 
 }

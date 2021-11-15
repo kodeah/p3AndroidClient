@@ -21,7 +21,9 @@ public class YoutubeWebViewClient extends WebViewClient {
 
     private String returnUrl;
 
-    public YoutubeWebViewClient(final String initialReturnUrl, FragmentActivity activity) {
+    public YoutubeWebViewClient(final String initialReturnUrl,
+                                final FragmentActivity activity )
+    {
         returnUrl = initialReturnUrl;
         this.activity = activity;
     }

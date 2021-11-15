@@ -8,16 +8,11 @@ import org.restlet.resource.ClientResource;
 public class PullupAction {
 
     public PullupAction(final Context context) {
-
-        //Use a new thread to avoid network calls on the UI thread
-        new Thread(() -> {
-            ClientResource postResource = new ClientResource(
-                    SettingsReader.getServerAddress(context) +
-                            "/commands/pullup"
-            );
-            postResource.post("");
-        }).start();
-
+        ClientResource postResource = new ClientResource(
+                SettingsReader.getServerAddress(context) +
+                        "/commands/pullup"
+        );
+        postResource.post("");
     }
 
 }
