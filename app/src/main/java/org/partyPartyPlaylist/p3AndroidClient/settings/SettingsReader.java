@@ -14,4 +14,9 @@ public final class SettingsReader {
                 sharedPref.getString("pref_serverPort", "");
     }
 
+    static public long getNetworkTimeout(Context context) {
+        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(context);
+        return Long.parseLong( sharedPref.getString("pref_networkTimeout", "1000") );
+    }
+
 }

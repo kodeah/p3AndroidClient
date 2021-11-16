@@ -8,6 +8,7 @@ import android.os.Bundle;
 import androidx.fragment.app.DialogFragment;
 
 import org.partyPartyPlaylist.p3AndroidClient.actions.EnqueueAction;
+import org.partyPartyPlaylist.p3AndroidClient.utils.BackgroundActionRunner;
 
 public class EnqueueAudioDialogFragment extends DialogFragment {
     //Credits:
@@ -28,9 +29,10 @@ public class EnqueueAudioDialogFragment extends DialogFragment {
                 .setPositiveButton(
                         "Yes",
                         (dialog, id) ->
-                                new Thread( () ->
-                                        new EnqueueAction(context, (String)getArguments().get("videoUrl"))
-                                ).start() )
+                                BackgroundActionRunner.runNetworkAction( () ->
+                                        new EnqueueAction(context, (String)getArguments().get("videoUrl")),
+                                        context
+                                ) )
                 .setNegativeButton(
                         "No",
                         (dialog, id) -> {} );

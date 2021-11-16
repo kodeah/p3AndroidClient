@@ -8,4 +8,8 @@
         android:defaultValue="6646"
         android:key="pref_serverPort"
         android:title="Port" />
+    <EditTextPreference
+        android:defaultValue="1000"
+        android:key="pref_networkTimeout"
+        android:title="Network Timeout (ms)" />
 </PreferenceScreen>

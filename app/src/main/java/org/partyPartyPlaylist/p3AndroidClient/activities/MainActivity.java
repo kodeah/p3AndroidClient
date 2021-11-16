@@ -25,6 +25,7 @@ import org.partyPartyPlaylist.p3AndroidClient.actions.PullupAction;
 import org.partyPartyPlaylist.p3AndroidClient.actions.SkipAction;
 import org.partyPartyPlaylist.p3AndroidClient.actions.StopAction;
 import org.partyPartyPlaylist.p3AndroidClient.fragments.ExceptionFragment;
+import org.partyPartyPlaylist.p3AndroidClient.utils.BackgroundActionRunner;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -65,13 +66,17 @@ public class MainActivity extends AppCompatActivity {
         // Handle item selection
         switch (item.getItemId()) {
             case R.id.action_pullup:
-                new Thread( () -> new PullupAction( thisContext ) ).start();
+                BackgroundActionRunner.runNetworkAction(
+                        () -> new PullupAction( thisContext ),
+                        thisContext );
                 return true;
             case R.id.action_autoplay:
                 toggleAutoplay();
                 return true;
             case R.id.action_skip:
-                new Thread( () -> new SkipAction( thisContext ) ).start();
+                BackgroundActionRunner.runNetworkAction(
+                        () -> new SkipAction( thisContext ),
+                        thisContext );
                 return true;
             case R.id.action_settings:
                 final Intent intent = new Intent(this, SettingsActivity.class);
@@ -113,10 +118,14 @@ public class MainActivity extends AppCompatActivity {
         assumesAutoplay = !assumesAutoplay;
         if (assumesAutoplay) {
             drawStateAutoplay();
-            new Thread( () -> new AutoplayAction(thisContext) ).start();
+            BackgroundActionRunner.runNetworkAction(
+                    () -> new AutoplayAction(thisContext),
+                    thisContext );
         } else {
             drawStateStopped();
-            new Thread( () -> new StopAction(thisContext) ).start();
+            BackgroundActionRunner.runNetworkAction(
+                    () -> new StopAction(thisContext),
+                    thisContext );
         }
     }
 
