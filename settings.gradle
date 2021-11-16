@@ -6,5 +6,5 @@ dependencyResolutionManagement {
         maven { url "https://maven.restlet.org" }
     }
 }
-rootProject.name = "My Application"
+rootProject.name = "P3AndroidClient"
 include ':app'
