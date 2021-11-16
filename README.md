@@ -13,7 +13,10 @@ Note: This app uses plain HTTP to talk to the p3Server's web interface. So do no
 
 # = Build / Install / Use =
 
-At the moment, this application is only provided as source code from this repository. To install it, perform the following steps:
+**You can download a snapshot apk of the app from [here](https://gitlab.com/kodeah/release-snapshots/-/blob/master/p3AndroidClient-snapshot.apk).**  
+After downloading the apk, search in your download folder for the apk and install it by clicking on in. In case the file ending has been changed to "*.zip*" during download, rename the file, so that it ends with "*.apk*" again to be able to install it. 
+
+Alternatively, to build and run the current master branch, perform the following steps:
 
 1) [Clone](https://www.howtogeek.com/451360/how-to-clone-a-github-repository/) or [download](https://gitlab.com/kodeah/p3Server/-/archive/master/p3Server-master.zip) this repository from this site.
 2) Open it as a project inside [Android Studio](https://developer.android.com/studio/install).
