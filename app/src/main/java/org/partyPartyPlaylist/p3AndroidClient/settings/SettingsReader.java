@@ -2,7 +2,7 @@ package org.partyPartyPlaylist.p3AndroidClient.settings;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.preference.PreferenceManager;
+import androidx.preference.PreferenceManager;
 
 public final class SettingsReader {
 
