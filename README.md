@@ -9,6 +9,8 @@ This client is intended not to be used as the only client for MPD, but in additi
 
 Note: This app uses plain HTTP to talk to the p3Server's web interface. So do not use either in untrusted networks.
 
+![p3AndroidClient_screenshot](img/p3AndroidClient_screenshot.png "Screenshot")
+
 # = Build / Install / Use =
 
 At the moment, this application is only provided as source code from this repository. To install it, perform the following steps:
